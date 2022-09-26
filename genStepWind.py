@@ -23,7 +23,8 @@ plt.style.use("seaborn")
 # The obtained file can be used with the "fluctuating two-component" wind
 # option in SIMA. 
 
-# inputs: 
+# inputs:
+path = "Wind_files\\"
 fname = 'step_wind_long.asc' # output file
 WS = np.array([4,6,8,10,10.6,12,14,16,18,20,22,24])  # Rated wind speed @ 12 m/s: 10.6 m/s
 dt = 0.1
@@ -55,7 +56,7 @@ plt.ylim(0,25)
 plt.show()
 
 # Write the time series to file
-fid = open(fname,'w')
+fid = open(path+fname,'w')
 fid.write('%d\n' % len(t));
 fid.write('%f\n' % dt); 
 fid.write('%d\n' % 2); 
