@@ -28,8 +28,8 @@ path = "Wind_files\\"
 fname = 'step_wind_long_minus.asc' # output file
 WS = np.array([4,6,8,10,10.6,12,14,16,18,20,22,24])*-1  # Rated wind speed @ 12 m/s: 10.6 m/s
 dt = 0.1
-tWS = 800 # duration for each wind speed
-tstart = 600 # extra time for first wind speed
+tWS = 1200 # duration for each wind speed
+tstart = 900 # extra time for first wind speed
 
 # Compute the length of the file
 nWS = len(WS) 
