@@ -52,14 +52,14 @@ plt.figure()
 plt.plot(t,wvel,'k')
 plt.xlabel(r'Time, s')
 plt.ylabel(r'V$_{hub}$, m/s')
-plt.ylim(0,25)
+plt.ylim(0,-25)
 plt.show()
 
 # Write the time series to file
 fid = open(path+fname,'w')
-fid.write('%d\n' % len(t));
-fid.write('%f\n' % dt); 
-fid.write('%d\n' % 2); 
+fid.write('%d\n' % len(t))
+fid.write('%f\n' % dt);
+fid.write('%d\n' % 2);
 for ii in range(0,len(wvel)):
     fid.write('%f %f  \n' % (wvel[ii],0));
 fid.close()

@@ -15,8 +15,8 @@ plt.rcParams["figure.figsize"] = (15, 4)
 
 # ============================================================================#
 # Inputs
-SIMAfol_Rotor = "C:\\DNV\\Workspaces\\SIMA\\Project work 3\\RotorOnly12MW\\Initial1\\1231-20220927115332\\"
-SIMAfol_Full = "C:\\DNV\\Workspaces\\SIMA\\Project work 3\\INO_WINDMOOR12MW\\Initial1\\1215-20220927075930\\"
+SIMAfol_Rotor = "C:\\DNV\\Workspaces\\SIMA\\Constant Wind\\RotorOnly12MW\\Initial1\\1231-20220930084514\\"
+SIMAfol_Full = "C:\\DNV\\Workspaces\\SIMA\\Constant Wind\\INO_WINDMOOR12MW\\Initial1\\1220-20220929151532\\"
 # Total simulation time and storage time step
 
 dt = 0.1 # Storage time step
@@ -203,6 +203,14 @@ Bl1Pitch_mean_Full = np.array([np.mean(Bl1Pitch_Full[int(start / dt):int(end / d
 Bl2Pitch_mean_Full = np.array([np.mean(Bl2Pitch_Full[int(start / dt):int(end / dt)]) for start, end in zip(starts_Full, ends_Full)])
 Bl3Pitch_mean_Full = np.array([np.mean(Bl3Pitch_Full[int(start / dt):int(end / dt)]) for start, end in zip(starts_Full, ends_Full)])
 
+rpm_stddev_Full = np.array([np.std(rpm_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+thrust_stddev_Full = np.array([np.std(AeroForceX_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+wind_speed_stddev_Full = np.array([np.std(HubWindX_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+genTq_stddev_Full =np.array([np.std(genTq_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+genPwr_stddev_Full =np.array([np.std(genPwr_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+Bl1Pitch_stddev_Full = np.array([np.std(Bl1Pitch_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+Bl2Pitch_stddev_Full = np.array([np.std(Bl2Pitch_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
+Bl3Pitch_stddev_Full = np.array([np.std(Bl3Pitch_Full[int(start / dt):int(end / dt)],ddof=1) for start, end in zip(starts_Full, ends_Full)])
 
 fast = pd.read_excel("Wind_files\\WM12MW_OpenFAST.xlsx", engine="openpyxl")
 wind1VelX_fast = fast["Wind1VelX"].to_numpy()[1:]
@@ -240,6 +248,27 @@ plt.tight_layout()
 plt.savefig("Results\\rotor_speed_vs_time.png")
 plt.show()
 
+plt.plot(time_WT_Rotor, AeroForceX_Rotor, linewidth=1, c="blue", label="Fixed", zorder=2)
+plt.plot(time_WT_Full, AeroForceX_Full, linewidth=0.6 , c="black", label="Floating", zorder=1)
+for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
+    if i ==0:
+        plt.vlines(x=time_WT_Rotor[int(start / dt)], ymin=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) - 1, ymax=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) + 1, linestyles="dotted", colors="green", label="Start steady state")
+        plt.vlines(x=time_WT_Rotor[int(end / dt)], ymin=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) - 1, ymax=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) + 1, linestyles="dotted", colors="black", label="End steady state")
+        plt.hlines(y=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]), xmin=time_WT_Rotor[int(start / dt)], xmax=time_WT_Rotor[int(end / dt)], colors="red",
+                   linestyles="dashed", label="Mean")
+    else:
+        plt.vlines(x=time_WT_Rotor[int(start / dt)], ymin=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) - 1, ymax=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) + 1, linestyles="dotted", colors="green")
+        plt.vlines(x=time_WT_Rotor[int(end / dt)], ymin=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) - 1, ymax=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]) + 1, linestyles="dotted", colors="black")
+        plt.hlines(y=np.mean(AeroForceX_Rotor[int(start / dt):int(end / dt)]), xmin=time_WT_Rotor[int(start / dt)], xmax=time_WT_Rotor[int(end / dt)], colors="red",
+                   linestyles="dashed")
+
+plt.xlabel("Time [s]")
+plt.ylabel("Force [kN]")
+plt.legend(loc="best")
+plt.title("Thrust force time history")
+plt.tight_layout()
+plt.savefig("Results\\thrust_vs_time.png")
+plt.show()
 
 ##
 """
@@ -249,6 +278,7 @@ Plotting of mean RPM versus wind speed
 plt.plot(wind_speed_mean_rotor, rpm_mean_rotor, 'r-o', label="SIMA - Fixed")
 plt.plot(wind_speed_mean_Full, rpm_mean_Full, 'k-o', linewidth=0.8, label="SIMA - Floating")
 plt.plot(wind1VelX_fast, Rotor_speed_fast, "b-X", label="FAST")
+plt.errorbar(x=wind_speed_mean_Full, y=rpm_mean_Full, yerr=rpm_stddev_Full, color="black", fmt="none", label="Std.dev.")
 plt.xlabel("Wind speed [m/s]")  # Endre denne til incomming?
 plt.ylabel("Rotor speed [rpm]")
 plt.legend(loc="best")
@@ -355,25 +385,27 @@ for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
                    linestyles="dashed")
 plt.title("Surge motion")
 plt.legend(loc="best")
+plt.savefig("Results\\surge.png")
 plt.show()
 
-plt.plot(time_SIMO_Full, platform_roll, linewidth=0.8, label="Roll motion")
+plt.plot(time_SIMO_Full, platform_roll, "k", linewidth=0.8, label="Roll motion")
 for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
     if i ==0:
-        plt.vlines(x=time_SIMO_Full[int(start / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) - 1, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) + 1, linestyles="dotted", colors="green", label="Start steady state")
-        plt.vlines(x=time_SIMO_Full[int(end / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) - 1, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) + 1, linestyles="dotted", colors="black", label="End steady state")
-        plt.hlines(y=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1), xmin=time_SIMO_Full[int(start / dt)], xmax=time_SIMO_Full[int(end / dt)], colors="red",
+        plt.vlines(x=time_SIMO_Full[int(start / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]) - 0.5, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]) + 0.5, linestyles="dotted", colors="green", label="Start steady state")
+        plt.vlines(x=time_SIMO_Full[int(end / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]) - 0.5, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) + 0.5, linestyles="dotted", colors="black", label="End steady state")
+        plt.hlines(y=np.mean(platform_roll[int(start / dt):int(end / dt)]), xmin=time_SIMO_Full[int(start / dt)], xmax=time_SIMO_Full[int(end / dt)], colors="red",
                    linestyles="dashed", label="Mean")
     else:
-        plt.vlines(x=time_SIMO_Full[int(start / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) - 1, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) + 1, linestyles="dotted", colors="green")
-        plt.vlines(x=time_SIMO_Full[int(end / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) - 1, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1) + 1, linestyles="dotted", colors="black")
-        plt.hlines(y=np.mean(platform_roll[int(start / dt):int(end / dt)]*-1), xmin=time_SIMO_Full[int(start / dt)], xmax=time_SIMO_Full[int(end / dt)], colors="red",
+        plt.vlines(x=time_SIMO_Full[int(start / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]) - 0.5, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]) + 0.5, linestyles="dotted", colors="green")
+        plt.vlines(x=time_SIMO_Full[int(end / dt)], ymin=np.mean(platform_roll[int(start / dt):int(end / dt)]) - 0.5, ymax=np.mean(platform_roll[int(start / dt):int(end / dt)]) + 0.5, linestyles="dotted", colors="black")
+        plt.hlines(y=np.mean(platform_roll[int(start / dt):int(end / dt)]), xmin=time_SIMO_Full[int(start / dt)], xmax=time_SIMO_Full[int(end / dt)], colors="red",
                    linestyles="dashed")
 plt.title("Roll motion")
 plt.legend(loc="best")
+plt.savefig("Results\\roll.png")
 plt.show()
 
-plt.plot(time_SIMO_Full, platform_pitch*-1, linewidth=0.8, label="Pitch motion")
+plt.plot(time_SIMO_Full, platform_pitch*-1, "k", linewidth=0.8, label="Pitch motion")
 for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
     if i ==0:
         plt.vlines(x=time_SIMO_Full[int(start / dt)], ymin=np.mean(platform_pitch[int(start / dt):int(end / dt)]*-1) - 1, ymax=np.mean(platform_pitch[int(start / dt):int(end / dt)]*-1) + 1, linestyles="dotted", colors="green", label="Start steady state")
@@ -387,6 +419,7 @@ for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
                    linestyles="dashed")
 plt.title("Pitch motion")
 plt.legend(loc="best")
+plt.savefig("Results\\pitch.png")
 plt.show()
 
 
