@@ -393,6 +393,7 @@ for i, (start, end) in enumerate(zip(starts_Rotor, ends_Rotor)):
         plt.hlines(y=np.mean(platform_surge[int(start / dt):int(end / dt)]*-1), xmin=time_SIMO_Full[int(start / dt)], xmax=time_SIMO_Full[int(end / dt)], colors="red",
                    linestyles="dashed")
 plt.title("Surge motion")
+plt.xlabel("")
 plt.legend(loc="best")
 plt.savefig("Results\\surge.png")
 plt.show()
@@ -431,8 +432,35 @@ plt.legend(loc="best")
 plt.savefig("Results\\pitch.png")
 plt.show()
 
+surge_mean = np.array([np.mean(platform_surge[int(start / dt):int(end / dt)]) for start, end in zip(starts_Rotor, ends_Rotor)])
+roll_mean = np.array([np.mean(platform_roll[int(start / dt):int(end / dt)]) for start, end in zip(starts_Rotor, ends_Rotor)])
+pitch_mean = np.array([np.mean(platform_pitch[int(start / dt):int(end / dt)]) for start, end in zip(starts_Rotor, ends_Rotor)])
 
+plt.plot(wind_speed_mean_rotor, surge_mean*-1, 'k-o')
+plt.xlabel("Wind speed [m/s]")
+plt.ylabel("Displacement [m]")
+plt.legend(loc="best")
+plt.title("Mean surge offset vs. wind speed")
+plt.tight_layout()
+plt.savefig("Results\\surge_vs_velocity.png")
+plt.show()
 
+plt.plot(wind_speed_mean_rotor, roll_mean, 'k-o')
+plt.xlabel("Wind speed [m/s]")
+plt.ylabel("Angular displacement [deg]")
+plt.legend(loc="best")
+plt.title("Mean roll offset vs. wind speed")
+plt.tight_layout()
+plt.savefig("Results\\roll_vs_velocity.png")
+plt.show()
 
+plt.plot(wind_speed_mean_rotor, pitch_mean*-1, 'k-o')
+plt.xlabel("Wind speed [m/s]")
+plt.ylabel("Angular displacement [deg]")
+plt.legend(loc="best")
+plt.title("Mean pitch offset vs. wind speed")
+plt.tight_layout()
+plt.savefig("Results\\pitch_vs_velocity.png")
+plt.show()
 
 debug=True
